@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import './index.css';
+import { FaRunning } from 'react-icons/fa';
+import { GiTortoise } from 'react-icons/gi';
 
 function App() {
   const containerRef = useRef(null);
@@ -14,7 +16,7 @@ function App() {
   const [achillesPosition, setAchillesPosition] = useState(5);
   const [tortoisePosition, setTortoisePosition] = useState(() => {
     const width = window.innerWidth;
-    const trackWidth = Math.min(460, width * 0.9) - 40; // Considera o padding
+    const trackWidth = Math.min(460, width * 0.9) - 40;
     return calculateCenterPosition(trackWidth);
   });
   const [achillesSpeed, setAchillesSpeed] = useState(1.5);
@@ -25,7 +27,6 @@ function App() {
   const [isSlowMode, setIsSlowMode] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Margem para que as bolinhas não encostem no final
   const TRACK_MARGIN = 5;
 
   useEffect(() => {
@@ -34,19 +35,15 @@ function App() {
         const width = trackRef.current.offsetWidth - 40;
         setTrackWidth(width);
         
-        // Se estiver pausado ou a corrida tiver terminado, ajusta as posições proporcionalmente
         if (isPaused || (!isRunning && tortoisePosition > calculateCenterPosition(width))) {
           const ratio = width / trackWidth;
           
-          // Calcula as novas posições
           const newTortoisePosition = Math.min(tortoisePosition * ratio, width - TRACK_MARGIN);
           const newAchillesPosition = Math.min(achillesPosition * ratio, newTortoisePosition - 30);
           
-          // Garante que Aquiles não ultrapasse os limites da pista
           setAchillesPosition(Math.max(5, Math.min(newAchillesPosition, width - TRACK_MARGIN)));
           setTortoisePosition(newTortoisePosition);
         } else if (!isRunning && !isPaused) {
-          // Reset completo apenas quando não estiver rodando e não estiver pausado
           setAchillesPosition(5);
           setTortoisePosition(calculateCenterPosition(width));
         }
@@ -83,21 +80,17 @@ function App() {
     const deltaTime = timestamp - lastTimeRef.current;
     lastTimeRef.current = timestamp;
 
-    // Calcula as próximas posições
     const nextAchillesPosition = achillesPosition + achillesSpeed * deltaTime * 0.1;
     const nextTortoisePosition = tortoisePosition + tortoiseSpeed * deltaTime * 0.1;
 
-    // Garante que Aquiles nunca ultrapasse a tartaruga menos a distância mínima
     const minDistance = 30;
     const limitedAchillesPosition = Math.min(
       nextAchillesPosition,
       nextTortoisePosition - minDistance
     );
 
-    // Calcula a distância atual
     const currentDistance = Math.abs(nextTortoisePosition - limitedAchillesPosition);
 
-    // Verifica se Aquiles está se aproximando da tartaruga
     if (currentDistance <= minDistance && !isSlowMode) {
       setAchillesSpeed(0.8);
       setIsSlowMode(true);
@@ -106,17 +99,14 @@ function App() {
       setIsSlowMode(false);
     }
 
-    // Verifica se chegou ao final da corrida
     if (nextTortoisePosition >= trackWidth - TRACK_MARGIN) {
       const finalTortoisePosition = trackWidth - TRACK_MARGIN;
       setTortoisePosition(finalTortoisePosition);
-      // Garante a distância mínima no final
       setAchillesPosition(finalTortoisePosition - minDistance);
       setIsRunning(false);
       return;
     }
 
-    // Atualiza as posições respeitando os limites
     setAchillesPosition(Math.max(0, Math.min(limitedAchillesPosition, trackWidth - TRACK_MARGIN)));
     setTortoisePosition(Math.min(nextTortoisePosition, trackWidth - TRACK_MARGIN));
 
@@ -167,11 +157,11 @@ function App() {
 
   return (
     <div ref={containerRef} className="container">
-      <h1 className="title">Zeno's Paradox of Achilles and the Tortoise</h1>
+      <h1 className="title">Zeno's Paradox: Achilles and the Tortoise</h1>
       <p className="description">
         In this famous paradox by Zeno, Achilles (the fastest runner) can never 
         catch up to the tortoise that started ahead of him. Every time Achilles 
-        reaches where the tortoise was, it has already moved slightly forward.
+        reaches where the tortoise was, it has already moved slightly further ahead.
       </p>
       
       <div className="flex justify-center gap-4 mb-8">
@@ -185,31 +175,44 @@ function App() {
               setIsPaused(false);
             }
           }}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          className="control-button primary"
         >
           {isRunning ? 'Pause' : isPaused ? 'Resume' : 'Start'}
         </button>
         <button 
           onClick={handleReset}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition"
+          className="control-button secondary"
         >
           Reset
         </button>
       </div>
 
       {isVisible && (
-        <div ref={trackRef} className="track">
-          <div 
-            className="runner achilles"
-            style={{ left: `${achillesPosition}px` }}
-          >
-            A
-          </div>
-          <div 
-            className="runner tortoise"
-            style={{ left: `${tortoisePosition}px` }}
-          >
-            T
+        <div className="race-container">
+          <div ref={trackRef} className="track">
+            <div className="track-decoration">
+              <div className="grass"></div>
+              <div className="track-lines"></div>
+              <div className="finish-line" style={{ left: `${trackWidth - TRACK_MARGIN}px` }}></div>
+            </div>
+            
+            <div 
+              className={`runner achilles ${isRunning ? 'running' : ''}`}
+              style={{ left: `${achillesPosition}px` }}
+            >
+              <FaRunning className={`runner-icon ${!isRunning ? 'facing-right' : 'facing-left'}`} />
+              <div className="runner-shadow"></div>
+              <div className="name-tag">Achilles</div>
+            </div>
+            
+            <div 
+              className={`runner tortoise ${isRunning ? 'moving' : ''}`}
+              style={{ left: `${tortoisePosition}px` }}
+            >
+              <GiTortoise className={`runner-icon ${!isRunning ? 'facing-right' : 'facing-left'}`} />
+              <div className="runner-shadow"></div>
+              <div className="name-tag">Tortoise</div>
+            </div>
           </div>
         </div>
       )}
