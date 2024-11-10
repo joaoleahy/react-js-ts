@@ -9,14 +9,14 @@ export default {
     },
     extend: {
       colors: {
-        'crystal-blue': '#9CF0F4',
-        'pastel-lilac': '#D7C8E1',
-        'light-moss-green': '#9BC26A',
-        'golden-yellow': '#FAC648',
-        'foggy-gray': '#D1D1D1',
-        'emerald-green': '#00B576',
-        'cotton-candy-pink': '#FBE7F1',
-        'solar-orange': '#FEA630',
+        'crystal-blue': '#54D5EB',
+        'pastel-lilac': '#E2C6E6',
+        'light-moss-green': '#9FC363',
+        'golden-yellow': '#FFCC00',
+        'foggy-gray': '#808080',
+        'emerald-green': '#2BB673',
+        'cotton-candy-pink': '#F3CCDE',
+        'solar-orange': '#FFA500',
       },
       spacing: {
         '7/10': '70%',
