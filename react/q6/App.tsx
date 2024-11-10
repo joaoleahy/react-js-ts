@@ -29,6 +29,8 @@ function App() {
 
   const TRACK_MARGIN = 5;
 
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
     const updateTrackWidth = () => {
       if (trackRef.current) {
@@ -47,6 +49,7 @@ function App() {
           setAchillesPosition(5);
           setTortoisePosition(calculateCenterPosition(width));
         }
+        setIsMounted(true);
       }
     };
 
@@ -193,7 +196,12 @@ function App() {
             <div className="track-decoration">
               <div className="grass"></div>
               <div className="track-lines"></div>
-              <div className="finish-line" style={{ left: `${trackWidth - TRACK_MARGIN}px` }}></div>
+              {isMounted && (
+                <div 
+                  className="finish-line" 
+                  style={{ left: `${trackWidth - TRACK_MARGIN}px` }}
+                />
+              )}
             </div>
             
             <div 
