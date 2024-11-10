@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import './index.css';
-import { FaRunning } from 'react-icons/fa';
-import { GiTortoise } from 'react-icons/gi';
+import "./index.css";
+import { FaRunning } from "react-icons/fa";
+import { GiTortoise } from "react-icons/gi";
 
 function App() {
   const containerRef = useRef(null);
@@ -36,14 +36,25 @@ function App() {
       if (trackRef.current) {
         const width = trackRef.current.offsetWidth - 40;
         setTrackWidth(width);
-        
-        if (isPaused || (!isRunning && tortoisePosition > calculateCenterPosition(width))) {
+
+        if (
+          isPaused ||
+          (!isRunning && tortoisePosition > calculateCenterPosition(width))
+        ) {
           const ratio = width / trackWidth;
-          
-          const newTortoisePosition = Math.min(tortoisePosition * ratio, width - TRACK_MARGIN);
-          const newAchillesPosition = Math.min(achillesPosition * ratio, newTortoisePosition - 30);
-          
-          setAchillesPosition(Math.max(5, Math.min(newAchillesPosition, width - TRACK_MARGIN)));
+
+          const newTortoisePosition = Math.min(
+            tortoisePosition * ratio,
+            width - TRACK_MARGIN
+          );
+          const newAchillesPosition = Math.min(
+            achillesPosition * ratio,
+            newTortoisePosition - 30
+          );
+
+          setAchillesPosition(
+            Math.max(5, Math.min(newAchillesPosition, width - TRACK_MARGIN))
+          );
           setTortoisePosition(newTortoisePosition);
         } else if (!isRunning && !isPaused) {
           setAchillesPosition(5);
@@ -54,8 +65,8 @@ function App() {
     };
 
     updateTrackWidth();
-    window.addEventListener('resize', updateTrackWidth);
-    return () => window.removeEventListener('resize', updateTrackWidth);
+    window.addEventListener("resize", updateTrackWidth);
+    return () => window.removeEventListener("resize", updateTrackWidth);
   }, [trackWidth, isRunning, isPaused, tortoisePosition]);
 
   useEffect(() => {
@@ -69,52 +80,75 @@ function App() {
     };
 
     initializePositions();
-    window.addEventListener('resize', initializePositions);
-    return () => window.removeEventListener('resize', initializePositions);
+    window.addEventListener("resize", initializePositions);
+    return () => window.removeEventListener("resize", initializePositions);
   }, []);
 
-  const animate = useCallback((timestamp: number) => {
-    if (!isRunning || isPaused) return;
+  const animate = useCallback(
+    (timestamp: number) => {
+      if (!isRunning || isPaused) return;
 
-    if (!lastTimeRef.current) {
+      if (!lastTimeRef.current) {
+        lastTimeRef.current = timestamp;
+      }
+
+      const deltaTime = timestamp - lastTimeRef.current;
       lastTimeRef.current = timestamp;
-    }
 
-    const deltaTime = timestamp - lastTimeRef.current;
-    lastTimeRef.current = timestamp;
+      const nextAchillesPosition =
+        achillesPosition + achillesSpeed * deltaTime * 0.1;
+      const nextTortoisePosition =
+        tortoisePosition + tortoiseSpeed * deltaTime * 0.1;
 
-    const nextAchillesPosition = achillesPosition + achillesSpeed * deltaTime * 0.1;
-    const nextTortoisePosition = tortoisePosition + tortoiseSpeed * deltaTime * 0.1;
+      const minDistance = 30;
+      const limitedAchillesPosition = Math.min(
+        nextAchillesPosition,
+        nextTortoisePosition - minDistance
+      );
 
-    const minDistance = 30;
-    const limitedAchillesPosition = Math.min(
-      nextAchillesPosition,
-      nextTortoisePosition - minDistance
-    );
+      const currentDistance = Math.abs(
+        nextTortoisePosition - limitedAchillesPosition
+      );
 
-    const currentDistance = Math.abs(nextTortoisePosition - limitedAchillesPosition);
+      if (currentDistance <= minDistance && !isSlowMode) {
+        setAchillesSpeed(0.8);
+        setIsSlowMode(true);
+      } else if (currentDistance > minDistance) {
+        setAchillesSpeed(1.5);
+        setIsSlowMode(false);
+      }
 
-    if (currentDistance <= minDistance && !isSlowMode) {
-      setAchillesSpeed(0.8);
-      setIsSlowMode(true);
-    } else if (currentDistance > minDistance) {
-      setAchillesSpeed(1.5);
-      setIsSlowMode(false);
-    }
+      if (nextTortoisePosition >= trackWidth - TRACK_MARGIN) {
+        const finalTortoisePosition = trackWidth - TRACK_MARGIN;
+        setTortoisePosition(finalTortoisePosition);
+        setAchillesPosition(finalTortoisePosition - minDistance);
+        setIsRunning(false);
+        return;
+      }
 
-    if (nextTortoisePosition >= trackWidth - TRACK_MARGIN) {
-      const finalTortoisePosition = trackWidth - TRACK_MARGIN;
-      setTortoisePosition(finalTortoisePosition);
-      setAchillesPosition(finalTortoisePosition - minDistance);
-      setIsRunning(false);
-      return;
-    }
+      setAchillesPosition(
+        Math.max(
+          0,
+          Math.min(limitedAchillesPosition, trackWidth - TRACK_MARGIN)
+        )
+      );
+      setTortoisePosition(
+        Math.min(nextTortoisePosition, trackWidth - TRACK_MARGIN)
+      );
 
-    setAchillesPosition(Math.max(0, Math.min(limitedAchillesPosition, trackWidth - TRACK_MARGIN)));
-    setTortoisePosition(Math.min(nextTortoisePosition, trackWidth - TRACK_MARGIN));
-
-    animationFrameRef.current = requestAnimationFrame(animate);
-  }, [achillesPosition, tortoisePosition, achillesSpeed, tortoiseSpeed, trackWidth, isRunning, isSlowMode, isPaused]);
+      animationFrameRef.current = requestAnimationFrame(animate);
+    },
+    [
+      achillesPosition,
+      tortoisePosition,
+      achillesSpeed,
+      tortoiseSpeed,
+      trackWidth,
+      isRunning,
+      isSlowMode,
+      isPaused,
+    ]
+  );
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -137,7 +171,7 @@ function App() {
     if (isVisible && isRunning) {
       lastTimeRef.current = undefined;
       animationFrameRef.current = requestAnimationFrame(animate);
-      
+
       return () => {
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
@@ -162,13 +196,14 @@ function App() {
     <div ref={containerRef} className="container">
       <h1 className="title">Zeno's Paradox: Achilles and the Tortoise</h1>
       <p className="description">
-        In this famous paradox by Zeno, Achilles (the fastest runner) can never 
-        catch up to the tortoise that started ahead of him. Every time Achilles 
-        reaches where the tortoise was, it has already moved slightly further ahead.
+        In this famous paradox by Zeno, Achilles (the fastest runner) can never
+        catch up to the tortoise that started ahead of him. Every time Achilles
+        reaches where the tortoise was, it has already moved slightly further
+        ahead.
       </p>
-      
+
       <div className="flex justify-center gap-4 mb-8">
-        <button 
+        <button
           onClick={() => {
             if (isRunning || isPaused) {
               setIsRunning(!isRunning);
@@ -180,12 +215,9 @@ function App() {
           }}
           className="control-button primary"
         >
-          {isRunning ? 'Pause' : isPaused ? 'Resume' : 'Start'}
+          {isRunning ? "Pause" : isPaused ? "Resume" : "Start"}
         </button>
-        <button 
-          onClick={handleReset}
-          className="control-button secondary"
-        >
+        <button onClick={handleReset} className="control-button secondary">
           Reset
         </button>
       </div>
@@ -197,27 +229,35 @@ function App() {
               <div className="grass"></div>
               <div className="track-lines"></div>
               {isMounted && (
-                <div 
-                  className="finish-line" 
+                <div
+                  className="finish-line"
                   style={{ left: `${trackWidth - TRACK_MARGIN}px` }}
                 />
               )}
             </div>
-            
-            <div 
-              className={`runner achilles ${isRunning ? 'running' : ''}`}
+
+            <div
+              className={`runner achilles ${isRunning ? "running" : ""}`}
               style={{ left: `${achillesPosition}px` }}
             >
-              <FaRunning className={`runner-icon ${!isRunning ? 'facing-right' : 'facing-left'}`} />
+              <FaRunning
+                className={`runner-icon ${
+                  !isRunning ? "facing-right" : "facing-left"
+                }`}
+              />
               <div className="runner-shadow"></div>
               <div className="name-tag">Achilles</div>
             </div>
-            
-            <div 
-              className={`runner tortoise ${isRunning ? 'moving' : ''}`}
+
+            <div
+              className={`runner tortoise ${isRunning ? "moving" : ""}`}
               style={{ left: `${tortoisePosition}px` }}
             >
-              <GiTortoise className={`runner-icon ${!isRunning ? 'facing-right' : 'facing-left'}`} />
+              <GiTortoise
+                className={`runner-icon ${
+                  !isRunning ? "facing-right" : "facing-left"
+                }`}
+              />
               <div className="runner-shadow"></div>
               <div className="name-tag">Tortoise</div>
             </div>
