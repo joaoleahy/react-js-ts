@@ -40,11 +40,15 @@ This will start the development server on port 3002.
 
 ## TypeScript Exercises (questions/)
 
-After installing the project dependencies, you can run the algorithm exercises using (Make sure you're in the project root directory):
+After installing the project dependencies, you can run the algorithm exercises using:
 
 ```base
-ts-node questions/q{number}.ts
+ts-node questions/q1.ts  # To run question 1
+ts-node questions/q2.ts  # To run question 2
+# ... and so on
 ```
+
+Make sure you're in the project root directory.
 
 ### Q1: Find Duplicates
 Implementation of a generic function that finds duplicate elements in an array.
