@@ -51,17 +51,4 @@ function runTests() {
   });
 }
 
-
-
 runTests();
-
-
-const benchmark = (iterations = 100000) => {
-    const start = performance.now();
-    for (let i = 0; i < iterations; i++) {
-        getMaxValue(testCases[0].carrotTypes, testCases[0].capacity);
-    }
-    return performance.now() - start;
-};
-
-console.log(`Execution time: ${benchmark().toFixed(3)}ms`);
