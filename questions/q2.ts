@@ -12,3 +12,26 @@ async function writeWithExponentialDelayAndProgress<T>(array: T[]): Promise<void
         await sleep(delayInMs);
     }
 }
+
+// Test cases
+const testArrays = [
+    ["a", "b", "c", "d"],                    // Basic test with letters
+    [1, 2, 3, 4, 5],                         // Test with numbers
+    ["hello", "world"],                      // Test with two words
+    [],                                      // Test with empty array
+    ["single"]                               // Test with a single element
+];
+
+async function runTests2() {
+    console.log("Starting tests...\n");
+    
+    for (let i = 0; i < testArrays.length; i++) {
+        console.log(`Test #${i + 1} with array:`, testArrays[i]);
+        await writeWithExponentialDelayAndProgress(testArrays[i].map(String));
+        console.log("\n-------------------\n");
+    }
+    
+    console.log("All tests completed!");
+}
+
+runTests2();
