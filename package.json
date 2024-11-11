@@ -4,13 +4,11 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "jest",
     "q3:dev": "cd react/q3 && npm run dev",
     "q6:dev": "cd react/q6 && npm run dev",
     "setup": "npm install && cd react/q3 && npm install && cd ../q6 && npm install"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
